@@ -365,3 +365,65 @@ test = [
 ```hcl
 var.test[0]["dev1"][0]
 ```
+
+# Задание 9
+Добавляем новые ресурсы
+```hcl
+resource "yandex_vpc_gateway" "nat_gateway" {
+  name = "nat-gateway"
+  shared_egress_gateway {}
+}
+
+resource "yandex_vpc_route_table" "rt" {
+  name       = "nat-route-table"
+  network_id = yandex_vpc_network.develop.id
+
+  static_route {
+    destination_prefix = "0.0.0.0/0"
+    gateway_id         = yandex_vpc_gateway.nat_gateway.id
+  }
+}
+```
+Добавляем параметр **route_table_id** в ресурсы подсетей
+```hcl
+resource "yandex_vpc_subnet" "develop" {
+  name           = var.vpc_name
+  zone           = var.default_zone
+  network_id     = yandex_vpc_network.develop.id
+  v4_cidr_blocks = var.default_cidr
+  route_table_id = yandex_vpc_route_table.rt.id
+}
+
+resource "yandex_vpc_subnet" "develop_db" {
+  name           = var.vpc_db_name
+  zone           = var.vm_db_zone
+  network_id     = yandex_vpc_network.develop.id
+  v4_cidr_blocks = var.vm_db_subnet_cidr
+  route_table_id = yandex_vpc_route_table.rt.id
+}
+```
+В файле **vms_platform.tf** изменяем параметры NAT для ВМ
+```hcl
+variable "vm_web_nat" {
+  type        = bool
+  default     = false
+  description = "VM NAT flag"
+}
+```
+```hcl
+variable "vm_db_nat" {
+  type        = bool
+  default     = false
+  description = "VM NAT flag"
+}
+```
+Далее
+```
+terraform plan
+terraform apply
+```
+Проверяем отсутствие публичных IP
+![скриншот](img/img9.png)
+Подключаемся к серийной консоли серверов и проверяем наличие интернета
+![скриншот](img/img10.png)
+![скриншот](img/img11.png)

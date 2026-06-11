@@ -44,8 +44,8 @@ variable "vm_web_preemptible" {
 
 variable "vm_web_nat" {
   type        = bool
-  default     = true
-  description = "VM enable NAT flag"
+  default     = false
+  description = "VM NAT flag"
 }
 
 # variable "vm_web_serial_port_enable" {
@@ -100,8 +100,8 @@ variable "vm_db_preemptible" {
 
 variable "vm_db_nat" {
   type        = bool
-  default     = true
-  description = "VM enable NAT flag"
+  default     = false
+  description = "VM NAT flag"
 }
 
 # variable "vm_db_serial_port_enable" {
